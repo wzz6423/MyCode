@@ -65,6 +65,9 @@ enum
             lev = "Debug";                                                                                    \
             break;                                                                                            \
         case 2:                                                                                               \
+            lev = "Warning";                                                                                  \
+            break;                                                                                            \
+        case 3:                                                                                               \
             lev = "Error";                                                                                    \
             break;                                                                                            \
         default:                                                                                              \
@@ -384,8 +387,8 @@ public:
             std::optional<char *> readPos = GetReadPos();
             if (readPos)
             {
-                std::optional<std::string> ret = ReadAsStringAndPop(pos.value() - readPos.value() + 1);
-                return ret; // 在 ReadAsStringAndPop 已经进行过安全性检查, 故此处不必再次进行检查
+                std::optional<std::string> ret = ReadAsString(pos.value() - readPos.value() + 1);
+                return ret; // 在 ReadAsString 已经进行过安全性检查, 故此处不必再次进行检查
             }
             else
             {
@@ -421,7 +424,7 @@ public:
         return true;
     }
 
-private:
+public:
     std::vector<char> _buffer; // 使用 vector 进行内存空间管理
     uint64_t _reader_idx;      // 读偏移
     uint64_t _writer_idx;      // 写偏移

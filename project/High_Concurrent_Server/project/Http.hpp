@@ -328,7 +328,7 @@ public:
         std::ifstream ifs(filename, std::ios::binary); // 二进制方式 -- 保证数据完全原始
         if (ifs.is_open() == false)
         {
-            Error_Log("open %s file erroe!\n", filename.c_str());
+            Error_Log("open %s file error!\n", filename.c_str());
             return false;
         }
         else
@@ -804,7 +804,7 @@ public:
             }
             else
             {
-                return std::nullopt;
+                return true;
             }
         }
         else
@@ -952,11 +952,13 @@ private:
         url.erase(std::remove(url.begin(), url.end(), '\r'), url.end());
         url.erase(std::remove(url.begin(), url.end(), '\n'), url.end());
         std::regex urlEncodeRule(R"((GET|HEAD|POST|PUT|DELETE)\s+([^?\s]+)(?:\?([^\s]*))?\s+(HTTP\/1\.[01]))");
-        bool ret = std::regex_match(line, matches, urlEncodeRule);
+        // R"((GET|HEAD|POST|PUT|DELETE) ([^\?]*)(?:\?(.*))? (HTTP\/1\.[01])(?:\n|\r\n)?)"
+        bool ret = std::regex_match(url, matches, urlEncodeRule);
         if (ret == false)
         {
             _recv_statu = RECV_HTTP_ERROR;
-            _resp_statu = 400; // BAD REQUEST
+            _resp_statu = 400;          // BAD REQUEST
+            assert(false);
             return false;
         }
         else
@@ -976,7 +978,15 @@ private:
             std::optional<std::string> ret = Util::UrlDecode(matches[2], false);
             if (ret)
             {
-                _request._path = ret.value();
+                if (ret.value() == "/favicon.ico")
+                {
+                    _resp_statu = 204;
+                    return true;
+                }
+                else
+                {
+                    _request._path = ret.value();
+                }
             }
             else
             {
@@ -1071,7 +1081,7 @@ private:
                     }
                     else
                     {
-                        if (line == "\n" || line == "\r\n")
+                        if (rline == "\n" || rline == "\r\n")
                         {
                             break;
                         }
@@ -1214,7 +1224,7 @@ public:
     void SetBaseDirAndFile(const std::string &path, const std::string src = "index.html")
     {
         assert(Util::IsDirectory(path));
-        assert(Util::IsFile(src));
+        assert(Util::IsFile(path + src));
         _basedir = path;
         _default_src = src;
     }
@@ -1264,6 +1274,7 @@ private:
         body += std::to_string(rsp->_statu);
         body += " ";
         body += Util::StatuToDesc(rsp->_statu);
+        body += "eeeeeeeeeeeeeeeeeee";
         body += "</h1>";
         body += "</body>";
         body += "</html>";
@@ -1368,8 +1379,9 @@ private:
     bool FileHandler(const HttpRequest &req, HttpResponse *rsp)
     {
         std::string req_path = req._path;
-        if (req._path.back() == '/')
+        if (req_path == "/")
         {
+            req_path = _basedir;
             req_path += _default_src;
         }
         bool ret = Util::ReadFile(req_path, &rsp->_body);
@@ -1508,13 +1520,13 @@ private:
                     else
                     {
                         Error_Log("judge isClose error!\n");
-                        return;
+                        return false;
                     }
                 }
                 else
                 {
                     Error_Log("judge isClose error!\n");
-                    return;
+                    return false;
                 }
             }
         }

@@ -310,8 +310,8 @@ public:
             std::optional<char *> readPos = GetReadPos();
             if (readPos)
             {
-                std::optional<std::string> ret = ReadAsStringAndPop(pos.value() - readPos.value() + 1);
-                return ret; // 在 ReadAsStringAndPop 已经进行过安全性检查, 故此处不必再次进行检查
+                std::optional<std::string> ret = ReadAsString(pos.value() - readPos.value() + 1);
+                return ret; // 在 ReadAsString 已经进行过安全性检查, 故此处不必再次进行检查
             }
             else
             {
