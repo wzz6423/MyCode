@@ -1384,6 +1384,9 @@ private:
             req_path = _basedir;
             req_path += _default_src;
         }
+        else{
+            req_path = _basedir + req._path;
+        }
         bool ret = Util::ReadFile(req_path, &rsp->_body);
         if (ret == false)
         {

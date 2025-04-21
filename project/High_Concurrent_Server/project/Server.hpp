@@ -2256,6 +2256,7 @@ private:
 
 /*----------------------------------------------------------------------------------------------------------------*/
 
+const std::string nullfile = "/dev/null";
 // 忽略 SIGPIPE 信号(对端关闭、本端依旧发送数据会收到这个信号), 防止进程崩溃
 class NetWork
 {
@@ -2263,6 +2264,29 @@ public:
     NetWork()
     {
         signal(SIGPIPE, SIG_IGN);
+        Daemon();
+    }
+    void Daemon (const std::string& cwd = ""){
+        signal(SIGCLD, SIG_IGN);
+        signal(SIGPIPE, SIG_IGN);
+        signal(SIGSTOP, SIG_IGN);
+    
+        if(fork() > 0){
+            exit(0);
+        }
+        setsid();
+    
+        if(!cwd.empty()){
+            chdir(cwd.c_str());
+        }
+    
+        int fd = open(nullfile.c_str(), O_RDWR);
+        if(fd > 0){
+            dup2(fd, 0);
+            dup2(fd, 1);
+            dup2(fd, 2);
+            close(fd);
+        }
     }
 };
 
