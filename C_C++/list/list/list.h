@@ -31,8 +31,9 @@ namespace wzz {
 		list_node(Ty&& val)
 			:_next(nullptr)
 			, _prev(nullptr)
-			,_val(forward<Ty>(val))
-		{ }
+			, _val(forward<Ty>(val))
+		{
+		}
 	};
 
 	template <typename T, typename Ref, typename Ptr>
@@ -44,7 +45,8 @@ namespace wzz {
 
 		__list_iterator(Node* node)
 			:_node(node)
-		{}
+		{
+		}
 
 		Ref operator*() {
 			return _node->_val;
@@ -79,7 +81,7 @@ namespace wzz {
 		bool operator!=(const self& it) const {
 			return _node != it._node;
 		}
-		
+
 		bool operator==(const self& it) const {
 			return _node == it._node;
 		}
@@ -89,7 +91,7 @@ namespace wzz {
 	class list {
 	private:
 		typedef list_node<T> Node;
-		
+
 	public:
 		typedef __list_iterator<T, T&, T*> iterator;
 		typedef __list_iterator<T, const T&, const T*> const_iterator;
@@ -102,16 +104,16 @@ namespace wzz {
 			_head->_prev = _head;
 		}
 
-		list() 
+		list()
 			:_head(nullptr)
-			,_size(NULL)
+			, _size(NULL)
 		{
 			empty_init();
 		}
 
-		list(int n, const T& value = T()) 
+		list(int n, const T& value = T())
 			:_head(nullptr)
-			,_size(NULL)
+			, _size(NULL)
 		{
 			empty_init();
 
@@ -121,9 +123,9 @@ namespace wzz {
 		}
 
 		template<typename iterator>
-		list(iterator first, iterator last) 
+		list(iterator first, iterator last)
 			:_head(nullptr)
-			,_size(NULL)
+			, _size(NULL)
 		{
 			empty_init();
 
@@ -133,9 +135,9 @@ namespace wzz {
 			}
 		}
 
-		list(const list<T>& lt) 
+		list(const list<T>& lt)
 			:_head(nullptr)
-			, _size(NULL) 
+			, _size(NULL)
 		{
 			empty_init();
 
@@ -146,9 +148,9 @@ namespace wzz {
 			}
 		}
 
-		list(list<T>&& lt) 
+		list(list<T>&& lt)
 			:_head(nullptr)
-			, _size(NULL) 
+			, _size(NULL)
 		{
 			empty_init();
 
@@ -203,19 +205,19 @@ namespace wzz {
 
 		//access
 		T& front() {
-			return *(_head->_next);
+			return _head->_next->_val;
 		}
 
 		const T& front() const {
-			return *(_head->_next);
+			return _head->_next->_val;
 		}
 
 		T& back() {
-			return *_head;
+			return _head->_prev->_val;
 		}
 
 		const T& back() const {
-			return *_head;
+			return _head->_prev->_val;
 		}
 
 		//modify
@@ -319,7 +321,7 @@ namespace wzz {
 
 	template <typename T>
 	list<T> func(list<T> lt) {
-             		return lt;
+		return lt;
 	}
 
 	void list_Test() {
@@ -330,6 +332,9 @@ namespace wzz {
 		lt.push_back(3);
 		lt.push_back(4);
 		lt.push_back(5);
+
+		std::cout << lt.front() << std::endl;
+		std::cout << lt.back() << std::endl;
 
 		Print(lt);
 
@@ -346,7 +351,7 @@ namespace wzz {
 		lt.clear();
 		Print(lt);
 
-		lt.emplace_back(10,20,30,0,1,2,3,4,5);
+		lt.emplace_back(10, 20, 30, 0, 1, 2, 3, 4, 5);
 		Print(lt);
 
 		list<int> lt2 = func(lt);
