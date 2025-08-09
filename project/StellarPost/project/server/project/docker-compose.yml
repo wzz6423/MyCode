@@ -1,0 +1,192 @@
+version: "3.8"
+
+services:
+  etcd:
+    image: quay.io/coreos/etcd:v3.5.1
+    container_name: etcd-service
+    environment: ETCD_NAME=etcd-service ETCD_DATA_DIR=/var/lib/etcd ETCD_LISTEN_CLIENT_URLS=http://0.0.0.0:2379 ETCD_ADVERTISE_CLIENT_URLS=http://etcd-service:2379
+    volumes:
+      # 挂载卷: 
+      # 容器内目录数据落在宿主机上
+      # 容器内访问宿主机文件
+      - ./middle/data/etcd:/var/lib/etcd:rw
+    ports:
+      - 2379:2379
+    restart: always
+  mysql:
+    image: mysql:8.0.42
+    container_name: mysql-service
+    environment: MYSQL_ROOT_PASSWORD=stellar_post
+    volumes:
+      - ./sql:/docker-entrypoint-initdb.d/:rw
+      - ./middle/data/mysql:/var/lib/mysql:rw
+    ports:
+      - 3306:3306
+    restart: always
+  redis:
+    image: redis:8.0.3
+    container_name: redis-service
+    volumes:
+      - ./middle/data/redis:/var/lib/redis:rw
+    ports:
+      - 6379:6379
+    restart: always
+  # es 需安装分词器
+  elasticsearch:
+    image: elasticsearch:7.17.29
+    container_name: elasticsearch-service
+    environment:
+      - "discovery.type=single-node"
+    volumes: ./middle/data/elasticsearch:/data:rw
+    ports:
+      - 9200:9200
+    restart: always
+  rabbitmq:
+    image: rabbitmq:3.12.1
+    container_name: rabbitmq-service
+    environment: RABBITMQ_DEFAULT_USER=stellar_post RABBITMQ_DEFAULT_PASS=stellar_post
+    volumes:
+      - ./middle/data/rabbitmq:/var/lib/rabbitmq:rw
+    ports:
+      - 5672:5672
+    restart: always
+  file_server:
+    build: ./file
+    container_name: file_server-service
+    volumes:
+      # 挂载: entrypoint 脚本, 数据目录(/stellar_post/Logs, /stellar_post/data), 配置文件
+      - ./config/file_server.conf:/stellar_post/config/file_server.conf
+      - ./entrypoint.sh:/stellar_post/entrypoint.sh
+      - ./middle/data/Logs:/stellar_post/Logs:rw
+      - ./middle/data/data:/stellar_post/data:rw
+    ports:
+      - 16424:16424
+    restart: always
+    depends_on:
+      - etcd
+    entrypoint:
+      # 与 dockerfile 中的 cmd 类似, 都是容器启动后的默认操作, 替代 dockerfile 中的 cmd
+      # 此处的 ip 根据实际情况更改
+      /stellar_post/entrypoint.sh -h 127.0.0.1 -p 2379 -c "/stellar_post/bin/file_server -flagfile=/stellar_post/config/file_server.conf"
+  crony_server:
+    build: ./crony
+    container_name: crony_server-service
+    volumes:
+      # 挂载: entrypoint 脚本, 数据目录(/stellar_post/Logs, /stellar_post/data), 配置文件
+      - ./config/crony_server.conf:/stellar_post/config/crony_server.conf
+      - ./entrypoint.sh:/stellar_post/entrypoint.sh
+      - ./middle/data/Logs:/stellar_post/Logs:rw
+      - ./middle/data/data:/stellar_post/data:rw
+    ports:
+      - 16428:16428
+    restart: always
+    depends_on:
+      - etcd
+      - mysql
+      - elasticsearch
+    entrypoint:
+      # 与 dockerfile 中的 cmd 类似, 都是容器启动后的默认操作, 替代 dockerfile 中的 cmd
+      # 此处的 ip 根据实际情况更改
+      /stellar_post/entrypoint.sh -h 127.0.0.1 -p 2379,3306,9200 -c "/stellar_post/bin/crony_server -flagfile=/stellar_post/config/crony_server.conf"
+  gateway_server:
+    build: ./gateway
+    container_name: gateway_server-service
+    volumes:
+      # 挂载: entrypoint 脚本, 数据目录(/stellar_post/Logs, /stellar_post/data), 配置文件
+      - ./config/gateway_server.conf:/stellar_post/config/gateway_server.conf
+      - ./entrypoint.sh:/stellar_post/entrypoint.sh
+      - ./middle/data/Logs:/stellar_post/Logs:rw
+      - ./middle/data/data:/stellar_post/data:rw
+    ports:
+      - 16421:16421
+      - 16422:16422
+    restart: always
+    depends_on:
+      - etcd
+      - redis
+    entrypoint:
+      # 与 dockerfile 中的 cmd 类似, 都是容器启动后的默认操作, 替代 dockerfile 中的 cmd
+      # 此处的 ip 根据实际情况更改
+      /stellar_post/entrypoint.sh -h 127.0.0.1 -p 2379,6379 -c "/stellar_post/bin/gateway_server -flagfile=/stellar_post/config/gateway_server.conf"
+  message_server:
+    build: ./message
+    container_name: message_server-service
+    volumes:
+      # 挂载: entrypoint 脚本, 数据目录(/stellar_post/Logs, /stellar_post/data), 配置文件
+      - ./config/message_server.conf:/stellar_post/config/message_server.conf
+      - ./entrypoint.sh:/stellar_post/entrypoint.sh
+      - ./middle/data/Logs:/stellar_post/Logs:rw
+      - ./middle/data/data:/stellar_post/data:rw
+    ports:
+      - 16427:16427
+    restart: always
+    depends_on:
+      - etcd
+      - redis
+      - mysql
+      - rabbitmq
+      - elasticsearch
+    entrypoint:
+      # 与 dockerfile 中的 cmd 类似, 都是容器启动后的默认操作, 替代 dockerfile 中的 cmd
+      # 此处的 ip 根据实际情况更改
+      /stellar_post/entrypoint.sh -h 127.0.0.1 -p 2379,6379,3306,9200,5672 -c "/stellar_post/bin/message_server -flagfile=/stellar_post/config/message_server.conf"
+  speech_server:
+    build: ./speech
+    container_name: speech_server-service
+    volumes:
+      # 挂载: entrypoint 脚本, 数据目录(/stellar_post/Logs, /stellar_post/data), 配置文件
+      - ./config/speech_server.conf:/stellar_post/config/speech_server.conf
+      - ./entrypoint.sh:/stellar_post/entrypoint.sh
+      - ./middle/data/Logs:/stellar_post/Logs:rw
+      - ./middle/data/data:/stellar_post/data:rw
+    ports:
+      - 16423:16423
+    restart: always
+    depends_on:
+      - etcd
+    entrypoint:
+      # 与 dockerfile 中的 cmd 类似, 都是容器启动后的默认操作, 替代 dockerfile 中的 cmd
+      # 此处的 ip 根据实际情况更改
+      /stellar_post/entrypoint.sh -h 127.0.0.1 -p 2379 -c "/stellar_post/bin/speech_server -flagfile=/stellar_post/config/speech_server.conf"
+  transmite_server:
+    build: ./transmite
+    container_name: transmite_server-service
+    volumes:
+      # 挂载: entrypoint 脚本, 数据目录(/stellar_post/Logs, /stellar_post/data), 配置文件
+      - ./config/transmite_server.conf:/stellar_post/config/transmite_server.conf
+      - ./entrypoint.sh:/stellar_post/entrypoint.sh
+      - ./middle/data/Logs:/stellar_post/Logs:rw
+      - ./middle/data/data:/stellar_post/data:rw
+    ports:
+      - 16426:16426
+    restart: always
+    depends_on:
+      - etcd
+      - mysql
+      - rabbitmq
+    entrypoint:
+      # 与 dockerfile 中的 cmd 类似, 都是容器启动后的默认操作, 替代 dockerfile 中的 cmd
+      # 此处的 ip 根据实际情况更改
+      /stellar_post/entrypoint.sh -h 127.0.0.1 -p 2379,3306,5672 -c "/stellar_post/bin/transmite_server -flagfile=/stellar_post/config/transmite_server.conf"
+  user_server:
+    build: ./user
+    container_name: user_server-service
+    volumes:
+      # 挂载: entrypoint 脚本, 数据目录(/stellar_post/Logs, /stellar_post/data), 配置文件
+      - ./config/user_server.conf:/stellar_post/config/user_server.conf
+      - ./entrypoint.sh:/stellar_post/entrypoint.sh
+      - ./middle/data/Logs:/stellar_post/Logs:rw
+      - ./middle/data/data:/stellar_post/data:rw
+    ports:
+      - 16425:16425
+    restart: always
+    depends_on:
+      - etcd
+      - redis
+      - mysql
+      - rabbitmq
+      - elasticsearch
+    entrypoint:
+      # 与 dockerfile 中的 cmd 类似, 都是容器启动后的默认操作, 替代 dockerfile 中的 cmd
+      # 此处的 ip 根据实际情况更改
+      /stellar_post/entrypoint.sh -h 127.0.0.1 -p 2379,6379,3306,9200,5672 -c "/stellar_post/bin/user_server -flagfile=/stellar_post/config/user_server.conf"

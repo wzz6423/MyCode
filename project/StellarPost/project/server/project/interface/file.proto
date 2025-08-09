@@ -1,0 +1,67 @@
+syntax = "proto3";
+
+package stellar_post.file;
+
+import "base.proto";
+
+// 启用C++通用服务代码生成
+option cc_generic_services = true;
+
+message GetSingleFileReq {
+  string request_id = 1;
+  string file_id = 2;
+  optional string user_id = 3;
+  optional string session_id = 4;
+}
+message GetSingleFileRsp {
+  string request_id = 1;
+  bool success = 2;
+  string errmsg = 3;
+  optional base.FileDownloadData file_data = 4;
+}
+
+message GetMultiFileReq {
+  string request_id = 1;
+  optional string user_id = 2;
+  optional string session_id = 3;
+  repeated string file_id_list = 4;
+}
+message GetMultiFileRsp {
+  string request_id = 1;
+  bool success = 2;
+  string errmsg = 3;
+  map<string, base.FileDownloadData> file_data = 4;//文件ID与文件数据的映射map
+}
+
+message PutSingleFileReq {
+  string request_id = 1;//请求ID，作为处理流程唯一标识
+  optional string user_id = 2;
+  optional string session_id = 3;
+  base.FileUploadData file_data = 4;
+}
+message PutSingleFileRsp {
+  string request_id = 1;
+  bool success = 2;
+  string errmsg = 3;
+  base.FileMessageInfo file_info = 4;//返回了文件组织的元信息
+}
+
+message PutMultiFileReq {
+  string request_id = 1;
+  optional string user_id = 2;
+  optional string session_id = 3;
+  repeated base.FileUploadData file_data = 4;
+}
+message PutMultiFileRsp {
+  string request_id = 1;
+  bool success = 2;
+  string errmsg = 3;
+  repeated base.FileMessageInfo file_info = 4;
+}
+
+service FileService {
+  rpc GetSingleFile(GetSingleFileReq) returns (GetSingleFileRsp);
+  rpc GetMultiFile(GetMultiFileReq) returns (GetMultiFileRsp);
+  rpc PutSingleFile(PutSingleFileReq) returns (PutSingleFileRsp);
+  rpc PutMultiFile(PutMultiFileReq) returns (PutMultiFileRsp);
+}

@@ -1,0 +1,23 @@
+# 声明基础镜像
+FROM ubuntu:22.04
+
+# 声明当前项目维护人
+LABEL maintainer="stellat_post"
+
+# 声明工作路径
+WORKDIR /stellar_post
+
+# 创建目录
+RUN mkdir -p /stellar_post/Logs &&\
+    mkdir -p /stellar_post/config &&\
+    mkdir -p /stellar_post/bin
+
+# 将可执行程序拷贝进入镜像
+COPY ./build/speech_server /stellar_post/bin/
+COPY ./build/nc /bin
+
+# 将可执行程序依赖拷贝进入镜像
+COPY ./depends/ /lib/x86_64-linux-gnu/
+
+# 设置容器的启动默认操作 -> 运行程序
+CMD /stellar_post/bin/speech_server -flagspeech=/stellar_post/config/speech_server.conf
