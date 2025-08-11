@@ -35,8 +35,40 @@ def handle_command(command):
 # 输出 “捡起 ['apple', 'book']”
 
 # 支持匹配固定长度的序列（如 [x, y, z]）、带通配符的序列（如 [x, *y] 捕获剩余元素）。
+def match_sequence(seq):
+    match seq:
+        case [x, y, z]:  # 匹配正好有3个元素的序列
+            print(f"三个元素: {x}, {y}, {z}")
+        case [a, b]:     # 匹配正好有2个元素的序列
+            print(f"两个元素: {a}, {b}")
+
+match_sequence([1, 2, 3])  # 输出 "三个元素: 1, 2, 3"
+match_sequence(["a", "b"]) # 输出 "两个元素: a, b"
+
 # 支持匹配字典（如 {"name": n, "age": a} 捕获键对应的值）。
+def match_dict(data):
+    match data:
+        case {"name": name, "age": age}:  # 匹配包含name和age键的字典
+            print(f"姓名: {name}, 年龄: {age}")
+        case {"id": id, "value": value}:  # 匹配包含id和value键的字典
+            print(f"ID: {id}, 值: {value}")
+
+match_dict({"name": "Alice", "age": 30})  # 输出 "姓名: Alice, 年龄: 30"
+match_dict({"id": 100, "value": "test"}) # 输出 "ID: 100, 值: test"
+
 # 支持类型匹配（如 case int(x) 仅匹配整数并捕获值）
+def match_type(value):
+    match value:
+        case int(num):      # 仅匹配整数类型
+            print(f"整数: {num}")
+        case str(text):     # 仅匹配字符串类型
+            print(f"字符串: {text}")
+        case float(decimal):# 仅匹配浮点数类型
+            print(f"浮点数: {decimal}")
+
+match_type(42)       # 输出 "整数: 42"
+match_type("hello")  # 输出 "字符串: hello"
+match_type(3.14)     # 输出 "浮点数: 3.14"
 
 
 # Python 的模块与包管理
