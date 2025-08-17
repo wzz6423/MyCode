@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script
+      src="https://code.jquery.com/jquery-3.7.1.js"
+      integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
+      crossorigin="anonymous"
+    ></script>
+    <title>boost Search😄</title>
+    <style>
+      /* 去掉网页中所有内外边距 */
+      * {
+        /* 设置外边距 */
+        margin: 0;
+        /* 设置内边距 */
+        padding: 0;
+      }
+      /* 将 body 的内容 100% 与 html 的呈现吻合 */
+      html,
+      body {
+        height: 100%;
+      }
+      /* 类选择器 */
+      .container {
+        /* 设置 div 宽度 */
+        width: 800px;
+        /* 通过设置外边距达到居中对齐的目的 */
+        margin: 0px auto;
+        /* 设置外边距的上侧与网页的距离 */
+        margin-top: 15px;
+      }
+      /* 复合选择器 -- 选中 container 下的 search */
+      .container .search {
+        /* 宽度与父标签保持一致 */
+        width: 100%;
+        /* 高度 */
+        height: 52px;
+      }
+      /* 先选中 input 标签 -- 直接设置标签属性先要选中, input: 标签选择器 */
+      .container .search input {
+        /* 设置元素左浮动 */
+        float: left;
+        width: 600px;
+        height: 50px;
+        /* 设置边框属性: 粗细 样式 颜色 */
+        border: 1px solid rgba(229, 229, 224, 0.733);
+        /* 设置边框右侧无 */
+        border-right: none;
+        /* 设置内边距 -- 文字与边框的距离 */
+        padding-left: 10px;
+        /* 设置字体颜色 */
+        color: black;
+        /* 设置字体大小 */
+        font-size: 18px;
+      }
+      /* 先选中 button 标签 */
+      .container .search button {
+        /* 设置元素左浮动 */
+        float: left;
+        width: 150px;
+        height: 52px;
+        /* 设置 button 背景颜色 */
+        background-color: #4e6ef2;
+        /* 设置边框 */
+        border: 1px solid #4e6ef2;
+        /* 设置字体颜色 */
+        color: #fff;
+        /* 设置字体大小 */
+        font-size: 20px;
+      }
+      .container .result {
+        width: 100%;
+      }
+      .container .result .item {
+        margin-top: 20px;
+      }
+      .container .result .item a {
+        /* 设置为块级元素, 单独占一行 */
+        display: block;
+        /* a 标签的下划线 */
+        text-decoration: none;
+        /* 设置字体大小 */
+        font-size: 20px;
+        /* 设置字体颜色 */
+        color: #2e54ed;
+        /* 设置下边距 */
+        margin-bottom: 10px;
+      }
+      .container .result .item a:hover {
+        color: #ed2e2e;
+        text-decoration: underline;
+      }
+      .container .result .item p {
+        margin: 5px;
+        font-size: 16px;
+        color: #555;
+        margin-bottom: 10px;
+      }
+      .container .result .item i {
+        /* 设置为块级元素, 单独占一行 */
+        display: block;
+        font-size: 14px;
+        color: #999;
+        font-style: normal;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>welcome to boost Search🙂</h1>
+    <div class="container">
+      <div class="search">
+        <input type="text" placeholder="input your search here..." />
+        <button onclick="Search()">Search</button>
+      </div>
+      <div class="result">
+        <!-- 动态生成网页内容 -->
+        <!-- <div class="item">
+          <a href="#">title</a>
+          <p>description</p>
+          <i>url</i> -->
+        </div>
+      </div>
+    </div>
+    <script>
+      // 使用 JQuery
+      function Search() {
+        // 提取数据, $ 就是 JQuery 的别称
+        let query = $(".container .search input").val();
+        if (query == "" || query == null || query == undefined) {
+          alert("input cannot be empty");
+          return;
+        }
+        // console.log("query = " + query);
+        // 将数据发送到服务器, ajax 是 JQuery 的一个与后端进行数据交互的函数
+        $.ajax({
+          type: "GET",
+          url: "/s?word=" + query,
+          success: function (data) {
+            // console.log(data);
+            BuildHtml(data);
+          },
+        });
+      }
+
+      function BuildHtml(data) {
+        // 获取 result 标签
+        let result_lable = $(".container .result");
+        // 清空历史搜索结果
+        result_lable.empty();
+
+        for (let elem of data) {
+          if(data == '' || data == null || data == undefined){
+            alert("no result");
+            return;
+          }
+          // console.log(elem.title);
+          // console.log(elem.url);
+          let a_lable = $("<a>", {
+            text: elem.title,
+            href: elem.url,
+            target: "_blank",
+          });
+          let p_lable = $("<p>", {
+            text: elem.desc,
+          });
+          let i_lable = $("<i>", {
+            text: elem.url,
+          });
+          let div_lable = $("<div>", {
+            class: "item",
+          });
+          a_lable.appendTo(div_lable);
+          p_lable.appendTo(div_lable);
+          i_lable.appendTo(div_lable);
+          div_lable.appendTo(result_lable);
+        }
+      }
+    </script>
+  </body>
+</html>
