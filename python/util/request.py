@@ -15,7 +15,7 @@ class Request:
         r = requests.get(url, **kwargs)
 
         self.log.info("get response from get request - status code: {}".format(r.status_code))
-        self.log.info("response content: {}".format(r.json))
+        self.log.info("response content: {}".format(r.text))
 
         return r
 
@@ -27,6 +27,6 @@ class Request:
         r = requests.post(url, **kwargs)
 
         self.log.info("get response from post request - status code: {}".format(r.status_code))
-        self.log.info("response content: {}".format(r.json))
+        self.log.info("response content: {}".format(r.text))
 
         return r
