@@ -9,7 +9,7 @@ project(file-server)
 set(target "file-server")
 
 # 开启调试
-set(CAMKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
 
 # for test -- 将 test/uint_test/file 复制到本目录下进行单元测试
 
