@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Online Judge</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        min-height: 100vh; /* 确保内容不足时页脚仍在底部 */
+        font-family: "Arial", "Microsoft YaHei", sans-serif; /* 适配中文 */
+        background-color: #faf7db;
+        color: #333; /* 深灰纯黑，更柔和 */
+        line-height: 1.6; /* 提升文字可读性 */
+      }
+
+      .app {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      /* 导航栏优化 */
+      .app .navbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        height: 70px; /* 轻微增高，提升舒适感 */
+        padding: 0 66px;
+        background-color: #ffffff00;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); /* 轻微阴影，区分层级 */
+        z-index: 10;
+      }
+
+      .app .navbar .title {
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 8px; /* 图标与文字间距 */
+      }
+
+      .app .navbar .title h2 {
+        font-weight: 600;
+        color: #2d3748; /* 标题加深，更醒目 */
+        transition: transform 0.3s ease; /* 增加微动画 */
+      }
+
+      .app .navbar .title:hover h2 {
+        transform: scale(1.02); /* 轻微缩放，增强交互感 */
+      }
+
+      /* 导航链接样式优化 */
+      .app a {
+        text-decoration: none;
+        color: #333;
+        margin: 0 15px;
+        font-size: 18px;
+        transition: all 0.3s ease;
+        position: relative;
+      }
+
+      .app a:hover {
+        color: #286aff;
+      }
+
+      .app a::after {
+        content: "";
+        position: absolute;
+        bottom: -4px;
+        left: 0;
+        width: 0;
+        height: 2px;
+        background-color: #286aff;
+        transition: width 0.3s ease;
+      }
+
+      .app a:hover::after {
+        width: 100%; /* 下划线动画 */
+      }
+
+      .app a:active {
+        color: #1a56e0; /* 点击色加深，反馈更明确 */
+      }
+
+      .app .navbar span {
+        margin: 0;
+        display: flex;
+        align-items: center;
+      }
+
+      /* 主体内容区优化 */
+      .app .content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 40px 20px; /* 增加内边距，避免内容贴边 */
+        text-align: center; /* 统一文字居中 */
+      }
+
+      .app .content div {
+        margin: 25px 0; /* 微调间距，更舒展 */
+        max-width: 800px; /* 限制最大宽度，避免大屏幕文字过宽 */
+      }
+
+      .app .content h2 {
+        font-size: clamp(2rem, 5vw, 3.5rem); /* 响应式字体，小屏自动缩小 */
+        color: #2d3748;
+        line-height: 1.2;
+        letter-spacing: -0.5px; /* 文字紧凑度调整 */
+        animation: fadeIn 1s ease-out; /* 入场动画 */
+      }
+
+      /* 按钮样式增强 */
+      .app .content a {
+        font-size: clamp(1.2rem, 3vw, 1.5rem); /* 响应式按钮文字 */
+        color: #286aff;
+        padding: 12px 30px; /* 增大点击区域 */
+        border: 2px solid #286aff;
+        border-radius: 8px; /* 圆角更柔和 */
+        margin: 0; /* 清除默认margin */
+        font-weight: 500;
+        box-shadow: 0 4px 12px rgba(40, 106, 255, 0.15); /* 按钮轻微阴影 */
+        transition: all 0.3s ease;
+        display: inline-block; /* 确保padding生效 */
+      }
+
+      .app .content a:hover {
+        background-color: #286aff;
+        color: white;
+        transform: translateY(-2px); /* 轻微上浮，增强交互感 */
+        box-shadow: 0 6px 16px rgba(40, 106, 255, 0.25); /* 阴影加深 */
+      }
+
+      .app .content a:active {
+        transform: translateY(0); /* 点击时回落 */
+      }
+
+      /* 页脚样式优化 */
+      .app .footer {
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #ffffff00;
+        color: #888;
+        font-size: 14px;
+        border-top: 1px solid #f0f4f8; /* 顶部边框，区分内容区 */
+        margin-top: auto; /* 确保页脚在底部 */
+        padding: 0 20px;
+      }
+
+      /* 入场动画 */
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* 响应式适配 */
+      @media (max-width: 768px) {
+        .app .navbar {
+          padding: 0 20px; /* 小屏减少内边距 */
+        }
+
+        .app .navbar a {
+          font-size: 16px;
+          margin: 0 8px; /* 链接间距减小 */
+        }
+
+        .app .content {
+          padding: 20px 15px;
+        }
+
+        .app .content div {
+          margin: 20px 0;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="app">
+      <!-- 导航栏 -->
+      <div class="navbar">
+        <div class="title">
+          <span>🖥️</span>
+          <h2>Online Judge</h2>
+        </div>
+        <span>
+          <a href="/">首页</a>
+          <a href="/all_questions">题目列表</a>
+        </span>
+      </div>
+      <!-- 主体 -->
+      <div class="content">
+        <div>
+          <h2>Welcome to Online Judge!</h2>
+        </div>
+        <div><a href="/all_questions">查看题目列表</a></div>
+      </div>
+      <!-- 页脚 -->
+      <div class="footer">© 2025 Online Judge 平台 | 版权所有</div>
+    </div>
+  </body>
+</html>

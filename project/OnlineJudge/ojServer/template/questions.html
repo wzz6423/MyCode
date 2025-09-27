@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Online Judge - Questions List</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        min-height: 100vh; /* 改为最小高度，避免内容不足时footer上浮 */
+        font-family: "Arial", "Microsoft YaHei", sans-serif; /* 增加中文字体适配 */
+        background-color: #faf7db;
+        color: #333; /* 文字主色改为深灰，更易读 */
+      }
+
+      /* 主容器：flex布局，确保footer在底部 */
+      .app {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      /* 链接样式统一优化 */
+      .app a {
+        text-decoration: none;
+        color: #333;
+        margin: 0 15px;
+        font-size: 18px;
+        transition: all 0.3s ease; /* 过渡效果扩展到所有属性 */
+        position: relative;
+      }
+
+      /* 链接hover效果增强：下划线+颜色 */
+      .app a:hover {
+        color: #286aff;
+      }
+
+      .app a::after {
+        content: "";
+        position: absolute;
+        bottom: -4px;
+        left: 0;
+        width: 0;
+        height: 2px;
+        background-color: #286aff;
+        transition: width 0.3s ease;
+      }
+
+      .app a:hover::after {
+        width: 100%;
+      }
+
+      .app a:active {
+        color: #1a56e0; /* 点击色加深，增强反馈 */
+      }
+
+      /* 导航栏优化：增加阴影+垂直居中 */
+      .app .navbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        height: 70px; /* 高度微调，更舒适 */
+        padding: 0 66px;
+        background-color: #ffffff00;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); /* 轻微阴影，增强层次 */
+        z-index: 10; /* 确保导航栏在最上层 */
+      }
+
+      .app .navbar .title {
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 8px; /* 图标与文字间距 */
+      }
+
+      .app .navbar .title h2 {
+        font-weight: 600;
+        color: #2d3748; /* 标题文字加深，更醒目 */
+      }
+
+      .app .navbar span {
+        margin: 0;
+        display: flex;
+        align-items: center;
+      }
+
+      /* 题目列表容器：增加间距+居中 */
+      .questions {
+        flex: 1; /* 占满剩余空间，推footer到底部 */
+        width: 90%;
+        max-width: 1200px; /* 最大宽度限制，避免大屏幕过宽 */
+        margin: 30px auto; /* 上下间距+水平居中 */
+        padding: 20px;
+        background-color: #fff; /* 白色背景，突出内容 */
+        border-radius: 12px; /* 圆角，柔和风格 */
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06); /* 容器阴影，增强层次 */
+      }
+
+      /* 题目列表标题：调整样式 */
+      .questions h2 {
+        text-align: left;
+        margin-bottom: 24px;
+        color: #2d3748;
+        font-size: 22px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      /* 表格样式全面优化 */
+      .questions table {
+        width: 100%;
+        border-collapse: separate; /* 分离边框，支持圆角 */
+        border-spacing: 0;
+        border-radius: 8px; /* 表格整体圆角 */
+        overflow: hidden; /* 裁剪溢出内容，显示圆角 */
+      }
+
+      /* 表头样式 */
+      .questions thead th {
+        background-color: #e6f0ff; /* 浅蓝主色，呼应链接色 */
+        color: #286aff;
+        padding: 16px 20px;
+        text-align: center;
+        font-weight: 600;
+        font-size: 16px;
+        border-bottom: 2px solid #f0f4f8;
+      }
+
+      /* 表格内容行样式 */
+      .questions tbody td {
+        padding: 16px 20px;
+        text-align: center;
+        font-size: 15px;
+        border-bottom: 1px solid #f0f4f8; /* 行分隔线，浅灰色更柔和 */
+        transition: background-color 0.3s ease;
+      }
+
+      /* 交替行背景色，增强可读性 */
+      .questions tbody tr:nth-child(even) {
+        background-color: #f9f6e8; /* 浅黄背景，呼应页面主背景 */
+      }
+
+      /* 行hover效果 */
+      .questions tbody tr:hover {
+        background-color: #e6f0ff; /* hover时浅蓝，与表头呼应 */
+      }
+
+      /* 表格内链接特殊处理（题目名称） */
+      .questions tbody td a {
+        margin: 0;
+        color: #286aff;
+        font-weight: 500;
+      }
+
+      .questions tbody td a:hover {
+        color: #1a56e0;
+      }
+
+      .questions tbody td a::after {
+        display: none; /* 取消题目链接的下划线效果，避免重复 */
+      }
+
+      /* 题目编号列：固定宽度+居中 */
+      .questions tbody td:first-child {
+        width: 120px;
+        color: #666;
+      }
+
+      /* 难度列：颜色区分+标签样式 */
+      .questions tbody td:last-child {
+        width: 140px;
+      }
+
+      .difficulty-tag {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 14px;
+        font-weight: 500;
+      }
+
+      /* 难度等级颜色区分 */
+      .difficulty-tag.easy {
+        background-color: #e6f7ef;
+        color: #2e7d32;
+      }
+
+      .difficulty-tag.medium {
+        background-color: #fff8e6;
+        color: #ff8f00;
+      }
+
+      .difficulty-tag.hard {
+        background-color: #ffebee;
+        color: #d32f2f;
+      }
+
+      /* 页脚样式：简洁版权信息 */
+      .app .footer {
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #ffffff00;
+        color: #888;
+        font-size: 14px;
+        border-top: 1px solid #f0f4f8;
+        margin-top: auto; /* 确保footer在底部 */
+      }
+
+      /* 响应式适配：小屏幕优化 */
+      @media (max-width: 768px) {
+        .app .navbar {
+          padding: 0 20px; /* 小屏幕导航栏内边距减小 */
+        }
+
+        .app .navbar .title h2 {
+          font-size: 18px;
+        }
+
+        .app .navbar a {
+          font-size: 16px;
+          margin: 0 8px; /* 链接间距减小 */
+        }
+
+        .questions {
+          width: 95%;
+          margin: 20px auto;
+          padding: 15px;
+        }
+
+        .questions h2 {
+          font-size: 20px;
+          text-align: center;
+        }
+
+        /* 小屏幕表格横向滚动 */
+        .questions .table-wrapper {
+          overflow-x: auto;
+        }
+
+        .questions tbody td {
+          padding: 12px 15px;
+          font-size: 14px;
+        }
+
+        .questions tbody td:first-child {
+          width: 100px;
+        }
+
+        .questions tbody td:last-child {
+          width: 120px;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="app">
+      <!-- 导航栏：移除重复的.navbar，保留一个 -->
+      <div class="navbar">
+        <div class="title">
+          <span>🖥️</span>
+          <h2>Online Judge</h2>
+        </div>
+        <span>
+          <a href="/">首页</a>
+          <a href="/all_questions">题目列表</a>
+        </span>
+      </div>
+
+      <!-- 题目列表容器：增加滚动包装器，适配小屏幕 -->
+      <div class="questions">
+        <h2>
+          <span>🖥️</span>
+          Online Judge Questions
+        </h2>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>题目编号</th>
+                <th>题目标题</th>
+                <th>题目难度</th>
+              </tr>
+            </thead>
+            <tbody>
+              {{#questions}}
+              <tr>
+                <td>{{number}}</td>
+                <td><a href="/question/{{number}}">{{title}}</a></td>
+                <!-- 难度标签化：根据难度值自动匹配样式 -->
+                <td>
+                  <span class="difficulty-tag {{difficulty | lowerCase}}">
+                    {{difficulty}}
+                  </span>
+                </td>
+              </tr>
+              {{/questions}}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 页脚：增加版权信息 -->
+      <div class="footer">© 2025 Online Judge 平台 | 版权所有</div>
+    </div>
+  </body>
+</html>
