@@ -6,7 +6,7 @@
 
 # 清除过去的安装
 clean_previous_install() {
-    echo -e "\e[31m[步骤0/7] 清除过去的安装配置...\e[0m"
+    echo -e "\e[31m[步骤0/8] 清除过去的安装配置...\e[0m"
     
     # 备份用户自定义配置（如果有）
     if [ -f "$HOME/.vimrc" ]; then
@@ -23,6 +23,8 @@ clean_previous_install() {
     rm -rf "$HOME/.coc" 2>/dev/null
     rm -rf "$HOME/.cache/vim" 2>/dev/null
     rm -rf "$HOME/.npm-global" 2>/dev/null
+    # 清除vimplus残留（若存在）
+    rm -rf "$HOME/.vimplus" 2>/dev/null
     
     # 清除 Coc 相关扩展
     find "$HOME/.config" -maxdepth 1 -name 'coc-*' -exec rm -rf {} + 2>/dev/null
@@ -57,10 +59,10 @@ VIM_PLUGINS="$VIM_DIR/plugged"
 clean_previous_install
 
 # 步骤1: 安装必要依赖
-echo -e "\e[32m[步骤1/7] 安装系统依赖...\e[0m"
+echo -e "\e[32m[步骤1/8] 安装系统依赖...\e[0m"
 sudo apt update || echo "警告: 系统更新失败，继续执行..."
 
-# 安装必要软件包
+# 安装必要软件包（包含git，为后续vimplus克隆做准备）
 sudo apt install -y --no-install-recommends \
     vim git cmake build-essential \
     python3-dev python3-pip python3-venv \
@@ -76,13 +78,13 @@ echo 'export PATH="$HOME/.npm-global/bin:$PATH"' >> "$HOME/.bashrc"
 source "$HOME/.bashrc" >/dev/null 2>&1
 
 # 步骤2: 安装Vim插件管理器
-echo -e "\e[32m[步骤2/7] 安装vim-plug...\e[0m"
+echo -e "\e[32m[步骤2/8] 安装vim-plug...\e[0m"
 mkdir -p "$VIM_DIR/autoload"
 curl -fLo "$VIM_DIR/autoload/plug.vim" --create-dirs \
     https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim || safe_exit "vim-plug下载失败"
 
-# 步骤3: 创建Vim配置
-echo -e "\e[32m[步骤3/7] 配置Vim...\e[0m"
+# 步骤3: 创建Vim基础配置
+echo -e "\e[32m[步骤3/8] 配置Vim基础设置...\e[0m"
 cat > "$VIMRC" << 'EOL'
 " ===== 基础设置 =====
 set nocompatible
@@ -223,42 +225,62 @@ autocmd VimEnter * if len(filter(values(g:plugs), '!isdirectory(v:val.dir)'))
       \| endif
 EOL
 
-# 步骤4: 安装Vim插件
-echo -e "\e[32m[步骤4/7] 安装Vim插件...\e[0m"
-vim -E -s -c "source $VIMRC" -c "PlugInstall" -c "qa" >/dev/null 2>&1 || echo "警告: 插件安装可能不完全"
+# 步骤4: 安装Vim基础插件
+echo -e "\e[32m[步骤4/8] 安装Vim基础插件...\e[0m"
+vim -E -s -c "source $VIMRC" -c "PlugInstall" -c "qa" >/dev/null 2>&1 || echo "警告: 基础插件安装可能不完全，后续可手动执行:PlugInstall"
 
-# 步骤5: 安装语言服务器
-echo -e "\e[32m[步骤5/7] 配置语言服务器...\e[0m"
+# 步骤5: 配置语言服务器核心
+echo -e "\e[32m[步骤5/8] 配置语言服务器核心组件...\e[0m"
 if [ -d "$VIM_PLUGINS/coc.nvim" ]; then
     cd "$VIM_PLUGINS/coc.nvim"
-    npm install --no-audit --quiet >/dev/null 2>&1 || echo "警告: Coc安装可能不完整"
+    npm install --no-audit --quiet >/dev/null 2>&1 || echo "警告: Coc.nvim核心安装可能不完整，后续可手动进入~/.vim/plugged/coc.nvim执行npm install"
     cd - >/dev/null
 fi
 
-# 步骤6: 安装开发工具
-echo -e "\e[32m[步骤6/7] 安装开发工具...\e[0m"
+# 步骤6: 安装开发辅助工具
+echo -e "\e[32m[步骤6/8] 安装多语言开发辅助工具...\e[0m"
 
-# Python工具
+# Python工具链
 python3 -m venv ~/.venv >/dev/null 2>&1
 source ~/.venv/bin/activate
 pip install --quiet --upgrade pip >/dev/null 2>&1
-pip install --quiet jedi pylint flake8 autopep8 >/dev/null 2>&1 || echo "警告: Python工具安装失败"
+pip install --quiet jedi pylint flake8 autopep8 >/dev/null 2>&1 || echo "警告: Python开发工具安装失败，后续可手动激活venv并重新安装"
 deactivate
 
-# Go工具
+# Go工具链
 command -v go >/dev/null && {
     go install golang.org/x/tools/gopls@latest >/dev/null 2>&1
     go install golang.org/x/tools/cmd/goimports@latest >/dev/null 2>&1
-}
+} || echo "警告: Go工具链未检测到，跳过Go相关工具安装"
 
-# NodeJS工具
+# NodeJS工具链
 command -v npm >/dev/null && {
-    npm install --silent -g typescript eslint prettier >/dev/null 2>&1 || echo "警告: NodeJS工具安装失败"
-}
+    npm install --silent -g typescript eslint prettier >/dev/null 2>&1 || echo "警告: NodeJS开发工具安装失败，后续可手动执行npm install -g typescript eslint prettier"
+} || echo "警告: npm未检测到，跳过NodeJS相关工具安装"
 
-# 步骤7: 创建项目配置文件
-echo -e "\e[32m[步骤7/7] 完成配置...\e[0m"
+# 步骤7: 安装vimplus增强套件（新增步骤）
+echo -e "\e[32m[步骤7/8] 安装vimplus增强套件...\e[0m"
+# 克隆vimplus仓库到用户目录
+if command -v git &> /dev/null; then
+    echo "正在从Gitee克隆vimplus仓库..."
+    git clone https://gitee.com/wzz6423/vimplus.git ~/.vimplus || safe_exit "vimplus仓库克隆失败，请检查网络连接或Gitee仓库地址"
+else
+    safe_exit "git命令未找到，无法克隆vimplus仓库（可能是步骤1依赖安装失败）"
+fi
+
+# 执行vimplus安装脚本
+echo "进入vimplus目录并执行安装脚本..."
+cd ~/.vimplus || safe_exit "无法进入~/.vimplus目录，克隆操作可能未完成"
+# 为安装脚本添加执行权限
+chmod +x install.sh || echo "警告: 无法为install.sh添加执行权限，尝试直接运行"
+# 执行安装脚本（vimplus安装过程可能需要交互，此处保持默认执行）
+./install.sh || echo "警告: vimplus安装脚本执行异常，后续可手动进入~/.vimplus目录执行./install.sh完成安装"
+cd - >/dev/null
+
+# 步骤8: 生成最终配置文件并收尾
+echo -e "\e[32m[步骤8/8] 生成最终配置文件并完成设置...\e[0m"
 mkdir -p "$HOME/.vim"
+# 生成Coc.nvim全局配置
 cat > "$HOME/.vim/coc-settings.json" << 'EOL'
 {
   "languageserver": {
@@ -279,31 +301,42 @@ cat > "$HOME/.vim/coc-settings.json" << 'EOL'
 }
 EOL
 
-# 完成信息
-echo -e "\n\e[42m\e[30m Vim 配置成功完成！ \e[0m\e[49m"
+# 完成信息汇总
+echo -e "\n\e[42m\e[30m Vim 完整配置（含vimplus）成功完成！ \e[0m\e[49m"
 echo ""
-echo "已安装的功能:"
-echo "  ✓ 现代化的界面主题 (Gruvbox)"
-echo "  ✓ 智能代码补全 (Coc.nvim)"
-echo "  ✓ 多语言支持 (C++/Java/Go/Python/JS/TS)"
-echo "  ✓ Git版本控制集成"
-echo "  ✓ 自动代码格式化"
+echo "已集成的核心功能:"
+echo "  ✓ 现代化界面主题（Gruvbox + vim-airline）"
+echo "  ✓ 智能代码补全与LSP支持（Coc.nvim）"
+echo "  ✓ 多语言开发环境（C++/Java/Go/Python/JS/TS）"
+echo "  ✓ Git版本控制深度集成（fugitive + gitgutter）"
+echo "  ✓ 自动代码格式化与诊断"
+echo "  ✓ vimplus增强套件（含额外插件与优化）"
 echo ""
-echo "快捷键指南:"
-echo "  ,d        - 打开/关闭文件浏览器"
-echo "  Ctrl+P    - 文件模糊搜索"
-echo "  ,t        - 查看代码结构"
-echo "  gd        - 跳转到定义"
-echo "  gr        - 查找引用"
-echo "  ,f        - 修复当前文件"
-echo "  ,r        - 重新加载配置"
+echo "常用快捷键指南（基础+vimplus补充）:"
+echo "  基础快捷键:"
+echo "    ,d        - 打开/关闭文件浏览器（NERDTree）"
+echo "    Ctrl+P    - 文件模糊搜索（fzf）"
+echo "    ,t        - 查看代码结构（Tagbar）"
+echo "    gd        - 跳转到定义（Coc.nvim）"
+echo "    gr        - 查找引用（Coc.nvim）"
+echo "    ,f        - 修复当前文件（ESLint）"
+echo "    ,r        - 重新加载Vim配置"
+echo "  vimplus补充快捷键（具体以vimplus文档为准）:"
+echo "    F2        - 重命名当前文件"
+echo "    F3        - 搜索当前单词"
+echo "    F4        - 切换头文件/源文件（C/C++）"
+echo "    F5        - 编译当前项目"
 echo ""
-echo "下一步:"
-echo "  1. 打开一个新终端使所有更改生效"
-echo "  2. 运行 'vim' 并等待插件完全安装"
-echo "  3. 要添加特定语言支持:"
-echo "      :CocInstall coc-java      # Java支持"
-echo "      :CocInstall coc-pyright    # Python支持"
+echo "后续操作建议:"
+echo "  1. 关闭当前终端，打开新终端使所有环境变量生效"
+echo "  2. 首次运行 'vim' 时，等待剩余插件自动安装完成"
+echo "  3. 若vimplus功能异常，手动执行以下命令修复:"
+echo "      cd ~/.vimplus && ./install.sh"
+echo "  4. 安装额外语言支持（示例）:"
+echo "      :CocInstall coc-python  # 增强Python支持"
+echo "      :CocInstall coc-rust-analyzer  # Rust支持"
 echo ""
-echo "使用 :checkhealth 检查Vim状态"
-echo "使用 :CocInfo 查看语言服务器信息"
+echo "配置检查命令:"
+echo "  :checkhealth  - 检查Vim整体环境状态"
+echo "  :CocInfo      - 查看Coc.nvim语言服务器运行信息"
+echo "  :VimplusHelp  - 查看vimplus详细帮助文档"
