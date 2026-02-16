@@ -1,0 +1,47 @@
+server:
+  port: 8080
+  mode: debug
+  upload_dir: ~/clouddisk_data/
+  max_upload_size: 104857600
+
+jwt:
+  secret: clouddisk-jwt-secret-change-in-production
+  expire_hours: 72
+
+mysql:
+  host: 127.0.0.1
+  port: 3306
+  user: root
+  password: "123456"
+  database: cloud_disk
+  max_open_conns: 20
+  max_idle_conns: 10
+
+redis:
+  addr: 127.0.0.1:6379
+  password: ""
+  db: 0
+
+elasticsearch:
+  addresses:
+    - http://127.0.0.1:9200
+  username: elastic
+  password: "123456"
+  index: cloud_disk_files
+
+sms:
+  access_key_id: ""
+  access_key_secret: ""
+  sign_name: CloudDisk
+  template_code: SMS_465324787
+
+email:
+  smtp_host: ""
+  smtp_port: 465
+  username: ""
+  password: ""
+  from: ""
+
+verify_code:
+  length: 6
+  expire_minutes: 10

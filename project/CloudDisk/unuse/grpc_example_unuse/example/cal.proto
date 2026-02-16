@@ -1,0 +1,19 @@
+syntax = "proto3";
+package calculator;
+
+service Calculator {
+    rpc Add (CalculationRequest) returns (CalculationResult);
+    rpc Subtract (CalculationRequest) returns (CalculationResult);
+}
+
+message CalculationRequest {
+    double a = 1;
+    double b = 2;
+}
+
+message CalculationResult {
+    double result = 1;
+}
+
+//protoc -I=. --grpc_out=. --plugin=protoc-gen-grpc=`which grpc_cpp_plugin` calculator.proto
+//protoc -I=. --cpp_out=. calculator.proto

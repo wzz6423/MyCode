@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>wzz的个人文件云备份中心</title>
+    <style>
+        /* 基础样式 [4,5](@ref) */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+            background-color: #f8f9fa;
+        }
+
+        /* 上传区域样式 [4,5](@ref) */
+        .upload-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        /* 自定义文件输入 [3,5](@ref) */
+        .custom-upload {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+
+        #fileInput {
+            opacity: 0;
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .upload-btn {
+            background: #4CAF50;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            transition: background 0.3s;
+            display: inline-block;
+        }
+
+        .upload-btn:hover {
+            background: #45a049;
+        }
+
+        /* 文件列表样式 [1,6](@ref) */
+        .file-list {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            padding: 1rem;
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px;
+            margin: 8px 0;
+            background: #f8f9fa;
+            border-radius: 4px;
+            transition: transform 0.2s;
+        }
+
+        .file-item:hover {
+            transform: translateX(4px);
+        }
+
+        .download-btn {
+            color: #4CAF50;
+            text-decoration: none;
+            padding: 6px 12px;
+            border: 1px solid #4CAF50;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+
+        .download-btn:hover {
+            background: #4CAF50;
+            color: white;
+        }
+
+        /* 响应式设计 [4](@ref) */
+        @media (max-width: 600px) {
+            .upload-btn {
+                width: 100%;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="upload-section">
+        <h2>上传文件</h2>
+        <form id="uploadForm" action="http://121.36.105.32:6423/upload" method="post" enctype="multipart/form-data">
+            <div class="custom-upload">
+                <button type="button" class="upload-btn">选择文件</button>
+                <input type="file" id="fileInput" name="file">
+            </div>
+            <br>
+            </br>
+            <button type="submit" class="upload-btn">上传文件</button>
+        </form>
+    </div>
+
+    <div class="file-list">
+        <h2>下载文件</h2>
+    </div>
+
+    <div class="file-item">

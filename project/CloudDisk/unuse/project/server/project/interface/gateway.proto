@@ -1,0 +1,47 @@
+syntax = "proto3";
+
+package cloud_disk.gateway;
+
+import "base.proto";
+
+option cc_generic_services = true;
+
+message ClientAuthenticationReq {
+    string request_id = 1;
+    string session_id = 2;
+}
+
+// 在客户端与网关服务器的通信中，使用HTTP协议进行通信
+// 通信时采用POST请求作为请求方法
+// 通信时，正文采用protobuf作为正文协议格式，具体内容字段以前边各个文件中定义的字段格式为准
+
+/*
+以下是HTTP请求的功能与接口路径对应关系：
+
+    SERVICE HTTP PATH:
+    {
+        获取手机短信验证码   /service/user/get_phone_verify_code
+        获取邮箱验证码   /service/user/get_email_verify_code
+        注册   /service/user/register
+        登录   /service/user/login
+        获取个人信息   /service/user/get_user_info
+        修改头像   /service/user/set_avatar
+        修改昵称   /service/user/set_nickname
+        修改签名    /service/user/set_description
+        修改手机号   /service/user/set_phone
+        修改邮箱号   /service/user/set_email
+        修改密码   /service/user/set_password
+
+        上传文件 /service/file/upload
+        下载文件 /service/file/download
+        删除文件 /service/file/delete
+        展示文件列表 /service/file/show_file_list
+        分享文件 /service/file/share
+        取消分享 /service/file/unshare
+        公开文件 /service/file/public
+        取消公开 /service/file/unpublic
+        搜索文件 /service/file/search
+        获取分享/公开文件 /service/file/receive
+    }
+
+*/

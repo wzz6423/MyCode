@@ -1,0 +1,199 @@
+syntax = "proto3";
+
+package cloud_disk.user;
+
+import "base.proto";
+
+option cc_generic_services = true;
+
+// 注册用户
+message RegisterReq
+{
+    string request_id = 1; // 请求 id
+    base.UserInfo user_info = 2; // 用户信息
+    string password = 3; // 密码
+    string verify_code_id = 4; // 验证码 id
+    string verify_code = 5; // 验证码
+}
+message RegisterRsp
+{
+    string request_id = 1; // 请求 id
+    bool success = 2; // 是否注册成功
+    optional string errmsg = 3; // 错误原因
+}
+
+// 注销用户
+message UnregisterReq
+{
+    string request_id = 1; // 请求 id
+    optional string phone_number = 2; // 电话号
+    optional string email = 3; // 邮箱号
+    string verify_code_id = 4; // 验证码 id
+    string verify_code = 5; // 验证码
+}
+message UnregisterRsp
+{
+    string request_id = 1; // 请求 id
+    bool success = 2; // 是否注销成功
+    optional string errmsg = 3; // 错误原因
+}
+
+// 手机号验证码获取
+message GetPnoneVerifyCodeReq
+{
+    string request_id = 1; // 请求 id
+    string phone_number = 2; // 电话号
+}
+message GetPnoneVerifyCodeRsp
+{
+    string request_id = 1; // 请求 id
+    bool success = 2; // 是否获取成功
+    string verify_code_id = 3; // 验证码 id
+    optional string errmsg = 4; // 错误原因
+}
+
+// 邮箱验证码获取
+message GetEmailVerifyCodeReq
+{
+    string request_id = 1; // 请求 id
+    string email = 2; // 邮箱号
+}
+message GetEmailVerifyCodeRsp
+{
+    string request_id = 1; // 请求 id
+    bool success = 2; // 是否获取成功
+    string verify_code_id = 3; // 验证码 id
+    optional string errmsg = 4; // 错误原因
+}
+
+// 手机号密码登录
+message LoginReq
+{
+    string request_id = 1; // 请求 id
+    string phone_number = 2; // 电话号
+    string password = 3; // 密码
+}
+message LoginRsp
+{
+    string request_id = 1; // 请求 id
+    bool success = 2; // 是否注销成功
+    optional string errmsg = 3; // 错误原因
+}
+
+// 获取用户信息
+message GetUserInfoReq
+{
+    string request_id = 1; // 请求 id
+    string phone_number = 2; // 电话号
+}
+message GetUserInfoRsp
+{
+    string request_id = 1; // 请求 id
+    base.UserInfo user_info = 2; // 用户信息
+    bool success = 3; // 是否成功
+    optional string errmsg = 4; // 错误原因
+}
+
+// 设置用户昵称
+message SetNickNameReq
+{
+    string request_id = 1; // 请求 id
+    string phone_number = 2; // 电话号
+    string nick_name = 3; // 昵称
+}
+message SetNickNameRsp
+{
+    string request_id = 1; // 请求 id
+    bool success = 2; // 是否成功
+    optional string errmsg = 3; // 错误原因
+}
+
+// 设置用户头像
+message SetAvatarReq
+{
+    string request_id = 1; // 请求 id
+    string phone_number = 2; // 电话号
+    string avatar = 3; // 头像
+}
+message SetAvatarRsp
+{
+    string request_id = 1; // 请求 id
+    bool success = 2; // 是否成功
+    optional string errmsg = 3; // 错误原因
+}
+
+// 设置用户签名
+message SetDescriptionReq
+{
+    string request_id = 1; // 请求 id
+    string phone_number = 2; // 电话号
+    string description = 3; // 签名
+}
+message SetDescriptionRsp
+{
+    string request_id = 1; // 请求 id
+    bool success = 2; // 是否成功
+    optional string errmsg = 3; // 错误原因
+}
+
+// 设置用户密码
+message SetPasswordReq
+{
+    string request_id = 1; // 请求 id
+    string phone_number = 2; // 电话号
+    string password = 3; // 密码
+}
+message SetPasswordRsp
+{
+    string request_id = 1; // 请求 id
+    bool success = 2; // 是否成功
+    optional string errmsg = 3; // 错误原因
+}
+
+// 设置用户手机号 -- 新电话号需要通过验证码验证, 更改电话号需要通过原密码验证
+message SetPhoneNumberReq
+{
+    string request_id = 1; // 请求 id
+    string new_phone_number = 2; // 新电话号
+    string verify_code_id = 3; // 验证码 id
+    string verify_code = 4; // 验证码
+    string password = 5; // 密码
+}
+message SetPhoneNumberRsp
+{
+    string request_id = 1; // 请求 id
+    bool success = 2; // 是否成功
+    optional string errmsg = 3; // 错误原因
+}
+
+// 设置用户邮箱号 -- 新邮箱号需要通过验证码验证, 更改邮箱号需要通过原密码验证
+message SetEmailReq
+{
+    string request_id = 1; // 请求 id
+    string new_email = 2; // 新邮箱号
+    string verify_code_id = 3; // 验证码 id
+    string verify_code = 4; // 验证码
+    string password = 5; // 密码
+}
+message SetEmailRsp
+{
+    string request_id = 1; // 请求 id
+    bool success = 2; // 是否成功
+    optional string errmsg = 3; // 错误原因
+}
+
+service UserService
+{
+    rpc Register (RegisterReq) returns (RegisterRsp);
+    rpc Unregister (UnregisterReq) returns (UnregisterRsp);
+    rpc GetPnoneVerifyCode (GetPnoneVerifyCodeReq) returns (GetPnoneVerifyCodeRsp);
+    rpc Login (LoginReq) returns (LoginRsp);
+    rpc GetUserInfo (GetUserInfoReq) returns (GetUserInfoRsp);
+    rpc SetNickName (SetNickNameReq) returns (SetNickNameRsp);
+    rpc SetAvatar (SetAvatarReq) returns (SetAvatarRsp);
+    rpc SetDescription (SetDescriptionReq) returns (SetDescriptionRsp);
+    rpc SetPassword (SetPasswordReq) returns (SetPasswordRsp);
+    rpc SetPhoneNumber (SetPhoneNumberReq) returns (SetPhoneNumberRsp);
+    rpc SetEmail (SetEmailReq) returns (SetEmailRsp);
+    rpc GetEmailVerifyCode (GetEmailVerifyCodeReq) returns (GetEmailVerifyCodeRsp);
+}

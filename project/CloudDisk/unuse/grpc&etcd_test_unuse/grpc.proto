@@ -1,0 +1,18 @@
+syntax="proto3";
+package grpc;
+
+message EchoRequest{
+    string message = 1;
+}
+
+message EchoResponse{
+    string message = 1;
+}
+
+service EchoService{
+    rpc Echo(EchoRequest) returns (EchoResponse);
+}
+
+// bash:
+// protoc --cpp_out=./ grpc.proto
+// protoc --grpc_out=. --plugin=protoc-gen-grpc=`which grpc_cpp_plugin` grpc.proto

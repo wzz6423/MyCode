@@ -1,0 +1,182 @@
+syntax = "proto3";
+
+package cloud_disk.file;
+
+import "base.proto";
+
+option cc_generic_services = true;
+
+// 上传文件
+message UploadFileReq
+{
+    string request_id = 1; // 请求 id
+    base.FileInfo file_info = 2; // 文件信息
+    string user_id = 3; // 用户 id
+}
+message UploadFileRsp
+{
+    string request_id = 1; // 请求 id
+    bool success = 2; // 是否成功
+    optional string errmsg = 3; // 错误原因
+}
+
+// 下载文件
+message DownloadFileReq
+{
+    string request_id = 1; // 请求 id
+    string user_id = 2; // 用户 id
+    string file_id = 3; // 文件 id
+    uint64 count = 4; // 下载数量
+}
+message DownloadFileRsp
+{
+    string request_id = 1; // 请求 id
+    bool success = 2; // 是否成功
+    optional string errmsg = 3; // 错误原因
+    repeated base.FileInfo file_info = 4; // 文件信息
+}
+
+// 删除文件
+message DeleteFileReq
+{
+    string request_id = 1; // 请求 id
+    string user_id = 2; // 用户 id
+    string file_id = 3; // 文件 id
+}
+message DeleteFileRsp
+{
+    string request_id = 1; // 请求 id
+    bool success = 2; // 是否成功
+    optional string errmsg = 3; // 错误原因
+}
+
+enum FileListType
+{
+    PERSONAL = 0; // 用户自己的文件列表
+    PUBLIC = 1; // 文件广场列表
+}
+// 展示文件列表 -- 1.用户个人文件列表展示 2.文件广场文件列表展示
+message ShowFileListReq
+{
+    string request_id = 1; // 请求 id
+    optional string user_id = 2; // 用户 id
+    FileListType type = 3; // 申请文件列表的类型
+}
+message ShowFileListRsp
+{
+    string request_id = 1; // 请求 id
+    bool success = 2; // 是否成功
+    optional string errmsg = 3; // 错误原因
+    optional base.UserFileList user_file_list = 4; // 文件列表
+    FileListType type = 5; // 申请文件列表的类型
+}
+
+// 查看单个文件信息
+message ShowFileReq
+{
+    string request_id = 1; // 请求 id
+    string user_id = 2; // 用户 id
+    string file_id = 3; // 文件 id
+}
+message ShowFileRsp
+{
+    string request_id = 1; // 请求 id
+    bool success = 2; // 是否成功
+    optional string errmsg = 3; // 错误原因
+    base.FileInfo file_info = 4; // 文件信息
+}
+
+// 分享文件
+message ShareFileReq
+{
+    string request_id = 1; // 请求 id
+    base.ShareFileInfo share_file_info = 2; // 分享文件信息(如果是目录则分享的是目录下的所有文件)
+}
+message ShareFileRsp
+{
+    string request_id = 1; // 请求 id
+    bool success = 2; // 是否成功
+    optional string errmsg = 3; // 错误原因
+    string url = 4; // 分享链接
+}
+
+// 取消分享
+message UnShareFileReq
+{
+    string request_id = 1; // 请求 id
+    base.ShareFileInfo share_file_info = 2; // 取消分享文件信息
+}
+message UnShareFileRsp
+{
+    string request_id = 1; // 请求 id
+    bool success = 2; // 是否成功
+    optional string errmsg = 3; // 错误原因
+}
+
+// 获取分享/公开文件
+message ReceiveFileReq
+{
+    string request_id = 1; // 请求 id
+    string url = 2; // 分享链接
+    string user_id = 3; // 用户 id
+    string path = 4; // 文件保存路径
+}
+message ReceiveFileRsp
+{
+    string request_id = 1; // 请求 id
+    bool success = 2; // 是否成功
+    optional string errmsg = 3; // 错误原因
+}
+
+// 搜索文件
+message SearchFileReq
+{
+    string request_id = 1; // 请求 id
+    string file_name = 2; // 文件名称
+}
+message SearchFileRsp
+{
+    string request_id = 1; // 请求 id
+    bool success = 2; // 是否成功
+    optional string errmsg = 3; // 错误原因
+    base.FileInfo file_info = 4; // 文件信息
+}
+
+// 公开文件
+message PublicFileReq
+{
+    string request_id = 1; // 请求 id
+    base.ShareFileInfo share_file_info = 2; // 分享文件信息(如果是目录则分享的是目录下的所有文件)
+}
+message PublicFileRsp
+{
+    string request_id = 1; // 请求 id
+    bool success = 2; // 是否成功
+    optional string errmsg = 3; // 错误原因
+    string url = 4; // 分享链接
+}
+
+// 取消公开
+message UnPublicFileReq
+{
+    string request_id = 1; // 请求 id
+    base.ShareFileInfo share_file_info = 2; // 取消分享文件信息
+}
+message UnPublicFileRsp
+{
+    string request_id = 1; // 请求 id
+    bool success = 2; // 是否成功
+    optional string errmsg = 3; // 错误原因
+}
+
+service FileService
+{
+    rpc UploadFile (UploadFileReq) returns (UploadFileRsp);
+    rpc DownloadFile (DownloadFileReq) returns (DownloadFileRsp);
+    rpc DeleteFile (DeleteFileReq) returns (DeleteFileRsp);
+    rpc ShowFileList (ShowFileListReq) returns (ShowFileListRsp);
+    rpc ShareFile (ShareFileReq) returns (ShareFileRsp);
+    rpc UnShareFile (UnShareFileReq) returns (UnShareFileRsp);
+    rpc ReceiveFile (ReceiveFileReq) returns (ReceiveFileRsp);
+    rpc SearchFile (SearchFileReq) returns (SearchFileRsp);
+}

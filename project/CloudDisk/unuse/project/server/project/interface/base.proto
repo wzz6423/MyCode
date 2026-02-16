@@ -1,0 +1,85 @@
+syntax = "proto3";
+
+package cloud_disk.base;
+
+option cc_generic_services = true;
+
+// 用户信息结构
+message UserInfo
+{
+    optional string user_id = 1; // 用户 ID, 客户端发送时不设置, 服务端随机生成
+    optional string nickname = 2; // 用户昵称, 客户端可以不设置, 采用默认生成的昵称
+    optional string description = 3; // 用户签名
+    optional string phone_number = 4; // 用户手机号
+    optional string email = 5; // 用户邮箱号
+    optional bytes avatar = 6; // 头像文件数据, 文件内容使用二进制, 客户端可以不设置, 采用默认头像
+    optional uint64 days = 7; // 用户注册天数, 客户端发送时不设置, 服务端设置
+    optional uint64 share_count = 8; // 文件分享次数, 客户端发送时不设置, 服务端设置
+    optional uint64 accept_count = 9; // 文件接收次数, 客户端发送时不设置, 服务端设置
+}
+
+// 文件类型
+enum FileType
+{
+    FILE = 0; // 普通文件 -- txt, md, word, pdf, ppt...
+    FOLDER = 1; // 文件夹
+    IMAGE = 2; // 图片
+    AUDIO = 3; // 音频
+    VIDEO = 4; // 视频
+    COMPRESS = 5; // 压缩文件
+    OTHER = 6; // 未知文件类型
+}
+
+// 文件来源
+enum FileSource
+{
+    OWN = 0; // 自己上传
+    OTHERS = 1; // 别人分享
+}
+
+// 文件元数据结构
+message FileInfo
+{
+    optional string file_id = 1; // 文件 ID, 客户端发送时不设置, 服务端随机生成
+    string file_name = 2; // 文件名
+    FileType type = 3; // 文件类型
+    uint64 file_size = 4; // 文件大小(如果是文件夹，可以设置为0或者不传，或者也可以表示文件夹内文件总大小)
+    optional bytes icon = 5; // 文件图标 -- 由文件类型决定
+    string path = 6; // 文件路径
+    FileSource source = 7; // 文件来源
+    optional UserInfo source_user = 8; // 文件分享者信息
+    optional uint64 count = 9; // 文件数量(文件不设置, 目录设置)
+    string update_time = 10; // 文件上传时间
+    uint64 access_time = 11; // 最近一次访问时间
+    uint64 modify_time = 12; // 最近一次修改时间
+    bool is_shared = 13; // 是否分享
+    bool is_public = 14; // 是否公开
+    optional bytes file_content = 15; // 文件数据, 在通过 url 仅作文件展示时无需填充
+    optional string unique_flag = 16; // 文件唯一标识(用于实现秒传功能), 客户端发送时不设置, 服务端生成
+    optional uint64 received_count = 17; // 如果文件被公开, 设置被获取次数
+}
+
+// 用户文件列表 -- lazy load
+message UserFileList
+{
+    repeated FileInfo file_infos = 1; // 文件路径与文件信息映射
+}
+
+// 文件分享操作类型
+enum ShareType
+{
+    SHARE = 0; // 分享
+    UN_SHARE = 1; // 取消分享
+    PUBLIC = 2; // 公开
+    UN_PUBLIC = 3; // 取消公开
+}
+// 分享文件结构
+message ShareFileInfo
+{
+    string user_id = 1; // 用户 id
+    string file_id = 2; // 分享文件信息(如果是目录则分享的是目录下的所有文件)
+    ShareType type = 3; // 分享操作
+    optional string message = 4; // 分享时要说的话
+    uint64 limit_time = 5; // 分享文件的截止时间 -- 分享: 0表示永久有效, 其他表示截止时间; 文件公开: 必须存在截止时间, 并有最大值
+    optional uint64 limit_count = 6; // 分享文件的最大保存次数, 可以不存在(无限制)
+}
